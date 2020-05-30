@@ -38,6 +38,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'notes.apps.NotesConfig',
+    'graphene_django',
 ]
 
 MIDDLEWARE = [
@@ -116,3 +118,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
 STATIC_URL = '/static/'
+
+# Graphene schema location
+GRAPHENE = {
+    'SCHEMA': 'notes.schema.schema'
+}
