@@ -30,4 +30,68 @@ class Query(ObjectType):
         return None
 
 
-schema = graphene.Schema(query=Query)
+class NoteInput(graphene.InputObjectType):
+    title = graphene.String()
+    content = graphene.String()
+
+
+class CreateNote(graphene.Mutation):
+    class Arguments:
+        input = NoteInput(required=True)
+
+    ok = graphene.Boolean()
+    note = graphene.Field(NoteType)
+
+    @staticmethod
+    def mutate(root, info, input=None):
+        ok = True
+        note_instance = Note(title=input.title, content=input.content)
+        note_instance.save()
+        return CreateNote(ok=ok, note=note_instance)
+
+
+class UpdateNote(graphene.Mutation):
+    class Arguments:
+        id = graphene.Int(required=True)
+        input = NoteInput(required=True)
+
+    ok = graphene.Boolean()
+    note = graphene.Field(NoteType)
+
+    @staticmethod
+    def mutate(root, info, id, input=None):
+        ok = False
+        note_instance = Note.objects.get(pk=id)
+        if note_instance:
+            ok = True
+            note_instance.title = input.title
+            note_instance.content = input.content
+            note_instance.save()
+            return UpdateNote(ok=ok, note=note_instance)
+        return UpdateNote(ok=ok, note=None)
+
+
+class DeleteNote(graphene.Mutation):
+    class Arguments:
+        id = graphene.Int(required=True)
+
+    ok = graphene.Boolean()
+    note = graphene.Field(NoteType)
+
+    @staticmethod
+    def mutate(root, info, id):
+        ok = False
+        note_instance = Note.objects.get(pk=id)
+        if note_instance:
+            ok = True
+            note_instance.delete()
+        return DeleteNote(ok=ok)
+
+
+class Mutation(graphene.ObjectType):
+    create_note = CreateNote.Field()
+    update_note = UpdateNote.Field()
+    delete_note = DeleteNote.Field()
+
+
+schema = graphene.Schema(query=Query, mutation=Mutation)
