@@ -8,6 +8,7 @@ python-decouple = "*"
 dj-database-url = "*"
 psycopg2 = "*"
 graphene-django = "*"
+django-graphql-jwt = "*"
 
 [dev-packages]
 pylint = "*"

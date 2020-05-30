@@ -1,5 +1,7 @@
 import graphene
+import graphql_jwt
 
+import notes.users.schema
 from graphene_django.types import DjangoObjectType, ObjectType
 
 from .models import Note
@@ -10,7 +12,7 @@ class NoteType(DjangoObjectType):
         model = Note
 
 
-class Query(ObjectType):
+class Query(notes.users.schema.Query, ObjectType):
     all_notes = graphene.List(NoteType)
     note = graphene.Field(NoteType, id=graphene.Int(), title=graphene.String())
 
@@ -88,10 +90,13 @@ class DeleteNote(graphene.Mutation):
         return DeleteNote(ok=ok)
 
 
-class Mutation(graphene.ObjectType):
+class Mutation(notes.users.schema.Mutation, graphene.ObjectType,):
     create_note = CreateNote.Field()
     update_note = UpdateNote.Field()
     delete_note = DeleteNote.Field()
+    token_auth = graphql_jwt.ObtainJSONWebToken.Field()
+    verify_token = graphql_jwt.Verify.Field()
+    refresh_token = graphql_jwt.Refresh.Field()
 
 
 schema = graphene.Schema(query=Query, mutation=Mutation)
