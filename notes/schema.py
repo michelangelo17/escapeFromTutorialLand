@@ -1,6 +1,6 @@
 import graphene
 import graphql_jwt
-
+from graphql_jwt.decorators import login_required
 import notes.users.schema
 from graphene_django.types import DjangoObjectType, ObjectType
 
@@ -16,9 +16,11 @@ class Query(notes.users.schema.Query, ObjectType):
     all_notes = graphene.List(NoteType)
     note = graphene.Field(NoteType, id=graphene.Int(), title=graphene.String())
 
+    @login_required
     def resolve_all_notes(self, info, **kwargs):
         return Note.objects.all()
 
+    @login_required
     def resolve_note(self, info, **kwargs):
         id = kwargs.get('id')
         title = kwargs.get('title')
@@ -45,6 +47,7 @@ class CreateNote(graphene.Mutation):
     note = graphene.Field(NoteType)
 
     @staticmethod
+    @login_required
     def mutate(root, info, input=None):
         ok = True
         note_instance = Note(title=input.title, content=input.content)
@@ -61,6 +64,7 @@ class UpdateNote(graphene.Mutation):
     note = graphene.Field(NoteType)
 
     @staticmethod
+    @login_required
     def mutate(root, info, id, input=None):
         ok = False
         note_instance = Note.objects.get(pk=id)
@@ -81,6 +85,7 @@ class DeleteNote(graphene.Mutation):
     note = graphene.Field(NoteType)
 
     @staticmethod
+    @login_required
     def mutate(root, info, id):
         ok = False
         note_instance = Note.objects.get(pk=id)
